@@ -72,205 +72,172 @@ let userWatchId = null;
 // === LOADER === //
 ////////////////////
 
-const loader = document.getElementById('loader');
+const LOADER = document.getElementById('loader');
 function showLoader() {
-    if (loader) 
-        loader.classList.add('is-active');
+    if (LOADER) {
+        LOADER.classList.add('is-active');
+    }
 }
 
 function hideLoader() {
-    if (loader) 
-        loader.classList.remove('is-active');
+    if (LOADER) {
+        LOADER.classList.remove('is-active');
+    }
 }
-
 /////////////////////
 // === SIDEBAR === //
 /////////////////////
 
-// --- GESTION DES SIDEBAR GAUCHE ET DROITE ---
+// =======================================
+// GESTION DES SIDEBARS GAUCHE & DROITE
+// =======================================
 function initSidebarEvents() {
-    
-    // --- 1/ GESTION SIDEBAR INFOSUPP ---
-    const CLOSE_BTN = document.getElementById("closeSidebar");
-    if (CLOSE_BTN) {
-        CLOSE_BTN.addEventListener("click", function() {
-            document.getElementById("sidebar").classList.remove("is-active");
-            document.getElementById("sidebarContent").innerHTML = "";
-            LAYERS.trainPath.clearLayers();
+
+    // ===== SIDEBAR DROITE (INFOS / DETAILS) =====
+    const SIDEBARRIGHT = document.getElementById("sidebar");
+    const SIDEBARCONTENT = document.getElementById("sidebarContent");
+    const CLOSEBTN = document.getElementById("closeSidebar");
+
+    if (CLOSEBTN) {
+        CLOSEBTN.addEventListener("click", function () {
+            if (SIDEBARRIGHT) {
+                SIDEBARRIGHT.classList.remove("is-active");
+            }
+
+            if (SIDEBARCONTENT) {
+                SIDEBARCONTENT.innerHTML = "";
+            }
+
+            if (window.LAYERS && LAYERS.trainPath) {
+                LAYERS.trainPath.clearLayers();
+            }
         });
     }
 
-    // --- 2/ GESTION SIDEBAR FILTRES (GAUCHE - MOBILE) ---
-    // --- SELECTION AVEC LES FILTRES DEFINIS EN CSS ---
-    const sidebarLeft = document.querySelector('.filter-sidebar'); 
 
-    // --- MENU BURGER ---
-    const burger = document.getElementById('burger');
-    
-    // --- CREATION DE l'OVERLAY ---
-    let overlay = document.getElementById('sidebar-overlay');
+    // ===== SIDEBAR GAUCHE (FILTRES - MOBILE) =====
+    const SIDEBARLEFT = document.querySelector(".filter-sidebar");
+    let burger = document.getElementById("mobile-menu-toggle");
+
+    // --- CREATION DE L'OVERLAY ---
+    let overlay = document.getElementById("sidebar-overlay");
     if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'sidebar-overlay';
+        overlay = document.createElement("div");
+        overlay.id = "sidebar-overlay";
         document.body.appendChild(overlay);
     }
 
-    // --- POUR OUVRIR/FERMER LE MENU ---
+    // --- TOGGLE MENU GAUCHE ---
     function toggleMenu() {
-        if(burger) {
-            burger.classList.toggle('is-active');
-        }
-        if(sidebarLeft) {
-            sidebarLeft.classList.toggle('is-active');
-        }
-        if(overlay) {
-            overlay.classList.toggle('is-active');
-        }
+        burger?.classList.toggle("is-active");
+        SIDEBARLEFT?.classList.toggle("is-active");
+        overlay?.classList.toggle("is-active");
     }
 
-    // --- EVENEMENT DU CLIQUE DU BURGER
+    // --- BURGER AVEC NETTOYAGE DES ANCIENS EVENT (DEBUG) ---
     if (burger) {
-        // --- ON CLEAR LES ANCIENS EVENEMENTS ---
-        // --- EVITE L'AFFICHAGE DE PLUSIEURS BURGER AU MEME MOMENT DANS DIFFERENTS ETATS (DEBUG) ---
         const NEWBURGER = burger.cloneNode(true);
         burger.parentNode.replaceChild(NEWBURGER, burger);
-        
-        NEWBURGER.addEventListener('click', function(e) {
+        burger = NEWBURGER;
+
+        burger.addEventListener("click", function (e) {
             e.stopPropagation();
             toggleMenu();
         });
     }
 
-    // --- EVENT POUR FERMER L'OVERLAY SI ON CLIQUE A COTE (SURTOUT UTILE POUR MOBILE) ---
-    if(overlay) {
-        overlay.addEventListener('click', function() {
-            if (sidebarLeft && sidebarLeft.classList.contains('is-active')) {
-                toggleMenu();
-            }
-        });
-    }
+    // --- CLICK SUR L'OVERLAY FERMETURE ---
+    overlay.addEventListener("click", function () {
+    if (SIDEBARLEFT?.classList.contains("is-active")) {
+        toggleMenu();
+        }
+    });
 
-    // --- 3/ GESTION FERMETURE AUTOMATIQUE SUR CARTE (MOBILE) ---
-    const mapElement = document.getElementById('map');
-    if (mapElement) {
-        mapElement.addEventListener('click', function() {
-            // --- SI ON EST SUR MOBILE ET QUE LE MENU EST OUVERT
-            if (window.innerWidth <= 1023 && sidebarLeft && sidebarLeft.classList.contains('is-active')) {
+    // --- CLIQUE SUR LA CARTE SUR MOBILE ---
+    const MAP = document.getElementById("map");
+    if (MAP) {
+        MAP.addEventListener("click", function () {
+            if (
+                window.innerWidth <= 1023 &&
+                SIDEBARLEFT &&
+                SIDEBARLEFT.classList.contains("is-active")
+            ) {
                 toggleMenu();
             }
         });
     }
 }
 
-// === OUVERTURE SIDEBAR DETAILS (DROITE) ===
+// =======================================
+// OUVERTURE SIDEBAR DROITE
+// =======================================
 function openSidebar(htmlContent) {
-    const SIDEBAR = document.getElementById("sidebar"); // ID 'sidebar' pour le panneau de droite
+    const SIDEBAR = document.getElementById("sidebar");
     const CONTENT = document.getElementById("sidebarContent");
-    
-    if(SIDEBAR && CONTENT) {
+
+    if (SIDEBAR && CONTENT) {
         CONTENT.innerHTML = `<div class="p-4">${htmlContent}</div>`;
         SIDEBAR.classList.add("is-active");
     }
 }
 
-// === ACCORDEONS (FILTRES) ===
+// =======================================
+// ACCORDÉONS (FILTRES)
+// =======================================
 function toggleAccordion(id) {
-    let content = document.getElementById(id);
-    if(content) {
-        let header = content.previousElementSibling;
-        content.classList.toggle('is-expanded');
-        if(header) {
-            header.classList.toggle('is-expanded');
-        }
+    const CONTENT = document.getElementById(id);
+    if (!CONTENT) {
+        return;
     }
+    const HEADER = content.previousElementSibling;
+    CONTENT.classList.toggle("is-expanded");
+    HEADER?.classList.toggle("is-expanded");
 }
 
-// === TOUT COCHER ===
+// =======================================
+// TOUT COCHER (FILTRES)
+// =======================================
 function toggleAllInCategory(sourceCheckbox, containerId) {
-    let container = document.getElementById(containerId);
-    if(container) {
-        let checkboxes = container.querySelectorAll('input[type="checkbox"]:not(.switch)'); 
-        for (let i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = sourceCheckbox.checked;
-            checkboxes[i].dispatchEvent(new Event('change'));
-        }
+    const CONTAINER = document.getElementById(containerId);
+    if (!CONTAINER) {
+        return;
+    }
+    const CHECKBOXES = CONTAINER.querySelectorAll(
+        'input[type="checkbox"]:not(.switch)'
+    );
+
+    for (let i = 0; i < CHECKBOXES.length; i++) {
+        CHECKBOXES[i].checked = sourceCheckbox.checked;
+        CHECKBOXES[i].dispatchEvent(new Event("change"));
     }
 }
-// === SIDEBAR UI ===
-function openSidebar(htmlContent) {
-    const SIDEBAR = document.getElementById("sidebar");
-    const CONTENT = document.getElementById("sidebarContent");
-    CONTENT.innerHTML = `<div class="p-4">${htmlContent}</div>`;
-    SIDEBAR.classList.add("is-active");
-}
 
-function initSidebarEvents() {
-    const CLOSE_BTN = document.getElementById("closeSidebar");
-    if (CLOSE_BTN) {
-        CLOSE_BTN.addEventListener("click", function() {
-            document.getElementById("sidebar").classList.remove("is-active");
-            document.getElementById("sidebarContent").innerHTML = "";
-            LAYERS.trainPath.clearLayers();
-        });
-    }
-    // --- GESTION MOBILE ---
-    const burger = document.getElementById('mobile-menu-toggle');
-    const sidebar = document.getElementById('leftSidebar');
-    
-    // --- CREATION DE L'OVERLAY ---
-    let overlay = document.getElementById('sidebar-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'sidebar-overlay';
-        document.body.appendChild(overlay);
-    }
-
-    // --- FONCTION DE BASCULE ---
-    function toggleMenu() {
-        burger.classList.toggle('is-active');
-        sidebar.classList.toggle('is-active');
-        overlay.classList.toggle('is-active');
-    }
-
-    // --- CLIQUE SUR LE BURGER MENU ---
-    if (burger) {
-        burger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleMenu();
-        });
-    }
-
-    // Fermer si on clique sur l'overlay (en dehors du menu)
-    overlay.addEventListener('click', toggleMenu);
-    
-    // Fermer si on clique sur un lien ou check dans le menu (optionnel, pour confort)
-    // sidebar.addEventListener('click', (e) => { 
-    //    if(window.innerWidth < 1024) toggleMenu(); 
-    // });
-}
-
-// === FILTRES ===
+// =======================================
+// FILTRES
+// =======================================
 function initFilters() {
-    let el;
-    for (const filterId of FILTERS_LIST) {
-        el = document.getElementById("filter_" + filterId);
-        if(el) el.addEventListener("change", refreshData);
+    for (const FILTERID of FILTERS_LIST) {
+        const EL = document.getElementById("filter_" + FILTERID);
+        if (EL) {
+            EL.addEventListener("change", refreshData);
+        }
     }
 }
 
 function toggleCategory(categoryId) {
-    const CAT_DIV = document.getElementById(categoryId);
-    const MAIN_CHECK = document.getElementById(`${categoryId}_checkbox`);
-    if(CAT_DIV && MAIN_CHECK) {
-        const checkboxes = CAT_DIV.getElementsByTagName('input');
-        for (const checkbox of checkboxes) {
-            checkbox.checked = MAIN_CHECK.checked;
-        }
-        refreshData();
+    const CATDIV = document.getElementById(categoryId);
+    const MAINCHECK = document.getElementById(`${categoryId}_checkbox`);
+
+    if (!CATDIV || !MAINCHECK) {
+        return;
     }
+    const CHECKBOXES = CATDIV.querySelectorAll("input[type='checkbox']");
+    for (let i = 0; i < CHECKBOXES.length; i++) {
+        CHECKBOXES[i].checked = MAINCHECK.checked;
+    }
+
+    refreshData();
 }
-
-
 
 
 
@@ -283,7 +250,9 @@ async function get(url) {
     try {
         const RESPONSE = await fetch(url);
         console.log("Requête terminée pour : " + url);
-        if (!RESPONSE.ok) throw new Error("Erreur HTTP : " + RESPONSE.status);
+        if (!RESPONSE.ok) {
+            throw new Error("Erreur HTTP : " + RESPONSE.status);
+        }
         const DATA = await RESPONSE.json();
         return DATA;
     } catch (error) {
@@ -405,7 +374,7 @@ function getUserLocation() {
     }
 
     // --- OPTIONS POUR LA GEOLOC ---
-    const options = {
+    const OPTIONS = {
         // --- UTILISATION DU GPS MATERIEL ---
         enableHighAccuracy: true,
         // --- SI LE GPS NE FONCTIONNE PAS APRES 10s ON ARRETE POUR EVITER LES BUS (DEBUG) ---
@@ -429,17 +398,17 @@ function getUserLocation() {
             // ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠  //
             // ATTENTION AU BAN DES APIS NE PAS ENLEVER CE CODE //
             // ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠  //
-            const now = Date.now();
-            if (now - lastRefreshTime > REFRESH_DELAY) {
+            const NOW = Date.now();
+            if (NOW - lastRefreshTime > REFRESH_DELAY) {
                 console.log("Actualisation API, délai entre appels OK.");
                 refreshData();
-                lastRefreshTime = now;
+                lastRefreshTime = NOW;
             }
         },
         function(e) {
-            console.error("Erreur GPS :", e.message);
+            console.error("Erreur GPS :", e);
         },
-        options 
+        OPTIONS 
     );
 }
 
@@ -456,18 +425,28 @@ function updateGeolocCircle() {
 function initRadiusSlider() {
     const SLIDER = document.getElementById("radiusSlider");
     const TEXT = document.getElementById("radiusValue");
-    if(SLIDER && TEXT) {
+
+    if (SLIDER && TEXT) {
+        
+        // --- ON CHANGE VISUELLEMENT LE CERCLE SANS FAIRE D'APPEL (DEBUG POUR EVITER LE SPAM DES APPELS) ---
         SLIDER.addEventListener("input", function(e) {
             radiusKm = parseInt(e.target.value);
             TEXT.textContent = radiusKm + " km";
             updateGeolocCircle();
-            refreshData();
+        });
+
+        // --- UNE FOIS LE RAYON FIXE ON CLEAR LES LOCALSTORAGE ET ON REFRESH LES DATAS ---
+        SLIDER.addEventListener("change", function(e) {
+            console.log("Changement de rayon : renouvellement des données.");
+            localStorage.removeItem("PositionsDesBus");
+            localStorage.removeItem("PositionsDesAvions");
+            localStorage.removeItem("PositionsDesTrains");
+            localStorage.removeItem("PositionsDesGares");
+            localStorage.removeItem("PositionsDesAeroports");
+            refreshData(); 
         });
     }
 }
-
-const DELTA_LAT = (radiusKm / EARTH_RADIUS_KM) * (180 / Math.PI);
-const DELTA_LON = (radiusKm / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLat * Math.PI / 180);
 
 ///////////////////////
 // === WAKE LOCK === //
@@ -585,9 +564,13 @@ async function fetchDonneeBuses() {
         return;
     }
 
+    let delta_lat = (radiusKm / EARTH_RADIUS_KM) * (180 / Math.PI);
+    let delta_lon = (radiusKm / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLat * Math.PI / 180);
+
+    console.log(delta_lat)
     // --- CREATION DE L'URL POUR LA REQUETE DE L'API DES BUS
     const FACTOR = 1.3;
-    const URL = `${BUS_TRACKER_URL}?swLat=${userLat - DELTA_LAT * FACTOR}&swLon=${userLon - DELTA_LON * FACTOR}&neLat=${userLat + DELTA_LAT * FACTOR}&neLon=${userLon + DELTA_LON * FACTOR}`;
+    const URL = `${BUS_TRACKER_URL}?swLat=${userLat - delta_lat * FACTOR}&swLon=${userLon - delta_lon * FACTOR}&neLat=${userLat + delta_lat * FACTOR}&neLon=${userLon + delta_lon * FACTOR}`;
     
     // --- MISE EN LOCAL STORAGE DE LA REPONSE API ---
     const DATA = await fetchLocal("PositionsDesBus", URL);
@@ -724,8 +707,9 @@ async function fetchTrajetTrain(trainNumero) {
 
         // --- SI LES DONNEES SONT UN SIMPLE TABLEAU ---
         else if (Array.isArray(DATA)) {
+            let p;
             for (let i = 0; i < DATA.length; i++) {
-                const p = DATA[i];
+                p = DATA[i];
                 if (p.lat && p.lon) {
                     latlngs.push([parseFloat(p.lat), parseFloat(p.lon)]);
                 } else if (Array.isArray(p)) {
@@ -735,10 +719,12 @@ async function fetchTrajetTrain(trainNumero) {
         }
 
         if (latlngs.length > 0) {
-            const polyline = L.polyline(latlngs, { color: '#e63946', weight: 5, opacity: 0.9 });
-            polyline.addTo(LAYERS.trainPath);
-            const bounds = polyline.getBounds();
-            if (bounds.isValid()) mapInstance.fitBounds(bounds, { padding: [50, 50] });
+            const POLYLINE = L.polyline(latlngs, { color: '#e63946', weight: 5, opacity: 0.9 });
+            POLYLINE.addTo(LAYERS.trainPath);
+            const BOUNDS = POLYLINE.getBounds();
+            if (BOUNDS.isValid()) {
+                mapInstance.fitBounds(BOUNDS, { padding: [50, 50] });
+            }
         }
 
     } catch (e) { console.error(e); }
@@ -781,14 +767,16 @@ async function fetchAeroports() {
     // --- LOCAL STORAGE POSITIONS DES AEROPORTS ---
     const DATA = await fetchLocal("PositionsDesAeroports", AIRPORTS_URL, 60000);
     
-    if (!CHECKBOX.checked || !DATA?.aeroports) return;
+    if (!CHECKBOX.checked || !DATA?.aeroports) {
+        return;
+    }
     LAYERS.airports.clearLayers();
-
-    for (const airport of DATA.aeroports) {
-        const lat = airport.latitude;
-        const lon = airport.longitude;
+    let lat,lon;
+    for (const AIRPORT of DATA.aeroports) {
+        lat = AIRPORT.latitude;
+        lon = AIRPORT.longitude;
         if (isValidAndInRadius(lat, lon)) {
-            const html = buildAirportPopup(airport, lat, lon);
+            const html = buildAirportPopup(AIRPORT, lat, lon);
             addMarkerToLayer(lat, lon, TOWER_ICON, LAYERS.airports, 0, html);
         }
     }
@@ -812,8 +800,9 @@ function buildBusPopup(data) {
     let callsHtml = "";
     if (data.calls?.length) {
         callsHtml = `<p class="menu-label mt-4">Prochains arrêts</p><ul class="menu-list mb-4">`;
+        let call;
         for (let i = 0; i < Math.min(5, data.calls.length); i++) {
-            const call = data.calls[i];
+            call = data.calls[i];
             callsHtml += `<li><span class="is-size-7">${call.stopName} (${new Date(call.aimedTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})})</span></li>`;
         }
         callsHtml += `</ul>`;
@@ -826,8 +815,8 @@ function buildTrainPopup(props) {
 }
 
 function buildStationPopup(nom, lat, lon) {
-    const DIST = userLat ? distanceKm(userLat, userLon, lat, lon).toFixed(1) : "?";
-    return `<div class="box is-shadowless"><h3 class="title is-4">${nom}</h3><p>Distance: ${DIST} km</p><button class="button is-small is-fullwidth mt-2" onclick="window.open('http://maps.google.com/?q=${lat},${lon}')">Itinéraire</button></div>`;
+    let dist = userLat ? distanceKm(userLat, userLon, lat, lon).toFixed(1) : "?";
+    return `<div class="box is-shadowless"><h3 class="title is-4">${nom}</h3><p>Distance: ${dist} km</p><button class="button is-small is-fullwidth mt-2" onclick="window.open('http://maps.google.com/?q=${lat},${lon}')">Itinéraire</button></div>`;
 }
 
 function buildAirportPopup(ap, lat, lon) {
@@ -886,7 +875,9 @@ window.onload = function() {
     initFilters();
     initSidebarEvents(); 
     const BTN_LOCATE = document.getElementById("btn-locate");
-    if (BTN_LOCATE) BTN_LOCATE.addEventListener("click", getUserLocation);
+    if (BTN_LOCATE) {
+        BTN_LOCATE.addEventListener("click", getUserLocation);
+    }
     getUserLocation();
     refreshData();
 };
