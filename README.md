@@ -128,6 +128,7 @@ Pour réutiliser la PWA en local sur votre machine il vous faudra :
 
 * **Un serveur web**
 
+> [!TIP]
 > *Normalement fonctionnelle sur n'importe quel service, notez bien qu'elle a été **développée sur** un serveur **Apache**. C'est donc ce service que je recommande.*
 
 **HTTPS est OBLIGATOIRE** (Requis pour le Service Worker et l'API Geolocation).
@@ -167,6 +168,7 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
 
 
