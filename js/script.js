@@ -14,6 +14,10 @@ const API_TCHOO_TRAIN_URL = "https://api.tchoo.net/trains.json";
 const CORS_PROXY_URL = "https://cors-anywhere.herokuapp.com/";
 const FULL_URL = CORS_PROXY_URL + API_TCHOO_TRAIN_URL;
 
+// --- CONSTANTE POUR LE BUS ---
+const MAX_FETCH_RADIUS_KM = 200;
+
+
 // === CONSTANTES POUR LEAFLET ===
 const MAP_DEFAULT_LAT = 46.603354;
 const MAP_DEFAULT_LON = 1.888334;
@@ -428,21 +432,16 @@ function initRadiusSlider() {
 
     if (SLIDER && TEXT) {
         
-        // --- ON CHANGE VISUELLEMENT LE CERCLE SANS FAIRE D'APPEL (DEBUG POUR EVITER LE SPAM DES APPELS) ---
+        // --- CHANGEMENT VISUEL (INPUT) ---
         SLIDER.addEventListener("input", function(e) {
             radiusKm = parseInt(e.target.value);
             TEXT.textContent = radiusKm + " km";
             updateGeolocCircle();
         });
 
-        // --- UNE FOIS LE RAYON FIXE ON CLEAR LES LOCALSTORAGE ET ON REFRESH LES DATAS ---
+        // --- RELACHEMENT DU SLIDER (CHANGE) ---
         SLIDER.addEventListener("change", function(e) {
-            console.log("Changement de rayon : renouvellement des données.");
-            localStorage.removeItem("PositionsDesBus");
-            localStorage.removeItem("PositionsDesAvions");
-            localStorage.removeItem("PositionsDesTrains");
-            localStorage.removeItem("PositionsDesGares");
-            localStorage.removeItem("PositionsDesAeroports");
+            console.log("Changement de rayon : mise à jour de l'affichage.");            
             refreshData(); 
         });
     }
@@ -496,7 +495,7 @@ document.addEventListener('visibilitychange', handleVisibilityChange);
 
 function refreshData() {
     handleLayerState("filter_planes", LAYERS.planes, fetchDonneeAvions);
-    handleLayerState("filter_buses", LAYERS.buses, fetchDonneeBuses);
+    handleLayerState("filter_buses", LAYERS.buses, fetchDonneeBus);
     handleLayerState("filter_trains", LAYERS.trains, fetchTrains);
     handleLayerState("filter_train_stations", LAYERS.trainStations, fetchGares);
     handleLayerState("filter_airports", LAYERS.airports, fetchAeroports);
@@ -557,51 +556,48 @@ async function fetchDonneeAvions() {
 }
 
 // === 2) BUS -> PositionsDesBus / InfosSuppBus ===
-async function fetchDonneeBuses() {
+async function fetchDonneeBus() {
 
-    // --- SI ON N'A PAS LA GEOLOC DE USER ALORS ON NE FAIT AUCUNE REQUETE
+    // --- SI ON N'A PAS LA GEOLOC ALORS ON NE FAIT RIEN ---
     if (!userLat || !userLon) {
         return;
     }
 
-    let delta_lat = (radiusKm / EARTH_RADIUS_KM) * (180 / Math.PI);
-    let delta_lon = (radiusKm / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLat * Math.PI / 180);
+    // --- CALCULE DU RAYON DE 200KM AUTOUR DU USER ---
+    let delta_lat = (MAX_FETCH_RADIUS_KM / EARTH_RADIUS_KM) * (180 / Math.PI);
+    let delta_lon = (MAX_FETCH_RADIUS_KM / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLat * Math.PI / 180);
 
-    console.log(delta_lat)
-    // --- CREATION DE L'URL POUR LA REQUETE DE L'API DES BUS
-    const FACTOR = 1.3;
+    const FACTOR = 1.0; 
+
     const URL = `${BUS_TRACKER_URL}?swLat=${userLat - delta_lat * FACTOR}&swLon=${userLon - delta_lon * FACTOR}&neLat=${userLat + delta_lat * FACTOR}&neLon=${userLon + delta_lon * FACTOR}`;
     
-    // --- MISE EN LOCAL STORAGE DE LA REPONSE API ---
     const DATA = await fetchLocal("PositionsDesBus", URL);
+    
     if (!DATA?.items) {
         return;
     }
 
-    // --- CLEAR DU LAYER BUS POUR EVITER LES ERREURS D'AFFICHAGE ---
+    // --- CLEAR DU LAYER ---
     LAYERS.buses.clearLayers();
 
-    let lat;
-    let lon;
-    let popupFn, details_url, details;
+    let lat, lon, popupFn, details_url, details;
 
     for (const item of DATA.items) {
-        // --- NE PAS SUPPRIMER => PERMET L'AFFICHAGE DES BUS SEULEMENT SINON LES TER S'AFFICHENT AUSSI ---
-        // --- POUR EVITER SUPERPOSITION AVEC L'API DES TRAINS ---
+        // --- FILTRAGE SERVICEJOURNEY POUR AFFICHER SEULEMENT LES BUS ET PAS LES TER ---
         if (item.id.includes("ServiceJourney")) {
             continue;
         }
+        
         lat = item.position?.latitude;
         lon = item.position?.longitude;
 
         if (isValidAndInRadius(lat, lon)) {
-            // --- MISE EN PLACE DES INFOS DANS LA SIDEBAR ---
+            
             popupFn = async function() {
                 openSidebar("Chargement des données...");
                 try {
-                    // --- APPEL VERS L'API DES BUS POUR AVOIR DES DETAILS SUR LE BUS CLIQUE ---
                     details_url = `https://bus-tracker.fr/api/vehicle-journeys/${encodeURIComponent(item.id)}`;
-                    // --- MISE EN LOCAL STORAGE DES INFOS DETAILLEES SUR LE BUS CLIQUE ---
+                    // --- 30s DE VALIDITE POUR LES DETAILS ---
                     details = await fetchLocal("InfosSuppBus_" + item.id, details_url, 30000);
                     return buildBusPopup(details);
                 } catch (e) { 
