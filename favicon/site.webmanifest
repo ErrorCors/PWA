@@ -1,0 +1,27 @@
+{
+		"name": "DUTY FREE",
+		"short_name": "DF",
+		"icons":
+		[
+			{
+				"src": "/mermillq/tracker/favicon/web-app-manifest-192x192.png",
+				"sizes": "192x192",
+				"type": "image/png",
+				"purpose": "any maskable"
+			},
+			{
+				"src": "/mermillq/tracker/favicon/web-app-manifest-512x512.png",
+				"sizes": "512x512",
+				"type": "image/png",
+				"purpose": "any maskable"
+			}
+		],
+		"theme_color": "#ffe73e",
+		"background_color": "#ffe73e",
+		"display": "standalone",					
+	 
+		"description": "Tracker de divers moyens de transports",
+		"orientation": "portrait",
+		"start_url": "https://srv-peda2.iut-acy.univ-smb.fr/mermillq/tracker/",
+		"scope": "https://srv-peda2.iut-acy.univ-smb.fr/mermillq/tracker/"
+}

@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "nom": "string",
+    "oaci": "string",
+    "iata": "string|null",
+    "latitude": "number (decimal degrees)",
+    "longitude": "number (decimal degrees)",
+    "departement_code": "string|number|null",
+    "departement": "string|null",
+    "region": "string|null",
+    "ville": "string|null",
+    "adresse": "string|null"
+  },
+  "aeroports": [
+    {"nom":"AGEN-LA-GARENNE","oaci":"LFBA","iata":"AGF","latitude":44.17,"longitude":0.5897,"departement_code":47,"departement":"Lot-et-Garonne","region":"Aquitaine","ville":"Agen","adresse":"LE PASSAGE 47520"},
+    {"nom":"AJACCIO-NAPOLEON-BONAPARTE","oaci":"LFKJ","iata":"AJA","latitude":41.92,"longitude":8.8,"departement_code":20,"departement":"Corse","region":"Corse","ville":"Ajaccio","adresse":"AJACCIO 20090"},
+    {"nom":"ALBI-LE-SEQUESTRE","oaci":"LFCI","iata":"LBI","latitude":43.9097,"longitude":2.12,"departement_code":81,"departement":"Tarn","region":"Midi-Pyrénées","ville":"Albi","adresse":"ALBI 81000"},
+    {"nom":"ANGERS-MARCE","oaci":"LFJR","iata":"ANE","latitude":47.56,"longitude":-0.31,"departement_code":49,"departement":"Maine-et-Loire","region":"Pays de la Loire","ville":"Angers","adresse":"MARCE 49140"},
+    {"nom":"ANGOULEME-BRIE-CHAMPNIERS","oaci":"LFBU","iata":"ANG","latitude":45.7297,"longitude":0.22,"departement_code":16,"departement":"Charente","region":"Poitou-Charentes","ville":"Angoulême","adresse":"CHAMPNIERS 16430"},
+    {"nom":"ANNECY-MEYTHET","oaci":"LFLP","iata":"NCY","latitude":45.93,"longitude":6.11,"departement_code":74,"departement":"Haute-Savoie","region":"Rhône-Alpes","ville":"Annecy","adresse":"METZ TESSY 74370"},
+    {"nom":"AURILLAC","oaci":"LFLW","iata":"AUR","latitude":44.8997,"longitude":2.4197,"departement_code":15,"departement":"Cantal","region":"Auvergne","ville":"Aurillac","adresse":"AURILLAC 15000"},
+    {"nom":"AVIGNON-CAUMONT","oaci":"LFMV","iata":"AVN","latitude":43.9097,"longitude":4.9,"departement_code":84,"departement":"Vaucluse","region":"Provence-Alpes-Côte d'Azur","ville":"Avignon","adresse":"RN7 MONTFAVET 84140"},
+    {"nom":"BASTIA-PORETTA","oaci":"LFKB","iata":"BIA","latitude":42.5497,"longitude":9.48,"departement_code":20,"departement":"Corse","region":"Corse","ville":"Bastia","adresse":"BORGO 20290"},
+    {"nom":"BEAUVAIS-TILLE","oaci":"LFOB","iata":"BVA","latitude":49.45,"longitude":2.11,"departement_code":60,"departement":"Oise","region":"Picardie","ville":"Beauvais","adresse":"TILLE 60000"},
+    {"nom":"BIARRITZ-BAYONNE-ANGLET","oaci":"LFBZ","iata":"BIQ","latitude":43.4697,"longitude":-1.53,"departement_code":64,"departement":"Pyrénées-Atlantiques","region":"Aquitaine","ville":"Biarritz","adresse":"ANGLET 64600"},
+    {"nom":"BORDEAUX-MERIGNAC","oaci":"LFBD","iata":"BOD","latitude":44.8297,"longitude":-0.72,"departement_code":33,"departement":"Gironde","region":"Aquitaine","ville":"Bordeaux","adresse":"BORDEAUX 33700"},
+    {"nom":"BREST-BRETAGNE","oaci":"LFRB","iata":"BES","latitude":48.45,"longitude":-4.42,"departement_code":29,"departement":"Finistère","region":"Bretagne","ville":"Brest","adresse":"GUIPAVAS 29490"},
+    {"nom":"CAEN-CARPIQUET","oaci":"LFRK","iata":"CFR","latitude":49.17,"longitude":-0.45,"departement_code":14,"departement":"Calvados","region":"Basse-Normandie","ville":"Caen","adresse":"CARPIQUET 14650"},
+    {"nom":"LILLE-LESQUIN","oaci":"LFQQ","iata":"LIL","latitude":50.56,"longitude":3.09,"departement_code":59,"departement":"Nord","region":"Nord-Pas-de-Calais","ville":"Lille","adresse":"LESQUIN 59812"},
+    {"nom":"LYON-SAINT-EXUPERY","oaci":"LFLL","iata":"LYS","latitude":45.7297,"longitude":5.08,"departement_code":69,"departement":"Rhône","region":"Rhône-Alpes","ville":"Lyon","adresse":"AEROPORT LYON ST EXUPERY 69125"},
+    {"nom":"MARSEILLE-PROVENCE","oaci":"LFML","iata":"MRS","latitude":43.44,"longitude":5.21,"departement_code":13,"departement":"Bouches-du-Rhône","region":"Provence-Alpes-Côte d'Azur","ville":"Marseille","adresse":"MARIGNANE 13727"},
+    {"nom":"NANTES-ATLANTIQUE","oaci":"LFRS","iata":"NTE","latitude":47.1597,"longitude":-1.61,"departement_code":44,"departement":"Loire-Atlantique","region":"Pays de la Loire","ville":"Nantes","adresse":"BOUGUENAIS 44340"},
+    {"nom":"NICE-COTE-D'AZUR","oaci":"LFMN","iata":"NCE","latitude":43.67,"longitude":7.21,"departement_code":6,"departement":"Alpes-Maritimes","region":"Provence-Alpes-Côte d'Azur","ville":"Nice","adresse":"NICE CEDEX"},
+    {"nom":"PARIS-CHARLES-DE-GAULLE","oaci":"LFPG","iata":"CDG","latitude":49.01,"longitude":2.55,"departement_code":93,"departement":"Seine-Saint-Denis","region":"Île-de-France","ville":"Paris","adresse":"ROISSY 95711"},
+    {"nom":"PARIS-ORLY","oaci":"LFPO","iata":"ORY","latitude":48.72,"longitude":2.38,"departement_code":91,"departement":"Essonne","region":"Île-de-France","ville":"Paris","adresse":"ORLY 94396"},
+    {"nom":"TOULOUSE-BLAGNAC","oaci":"LFBO","iata":"TLS","latitude":43.63,"longitude":1.37,"departement_code":31,"departement":"Haute-Garonne","region":"Midi-Pyrénées","ville":"Toulouse","adresse":"BLAGNAC 31700"},
+    {"nom":"POINTE-A-PITRE-LE-RAIZET","oaci":"TFFR","iata":"PTP","latitude":16.2647,"longitude":-61.5256,"departement_code":971,"departement":"Guadeloupe","region":"Guadeloupe","ville":"Pointe-à-Pitre","adresse":"ABYMES 97139"},
+    {"nom":"MARTINIQUE-AIMEE-CESAIRE","oaci":"TFFF","iata":"FDF","latitude":14.5908,"longitude":-61.0031,"departement_code":972,"departement":"Martinique","region":"Martinique","ville":"Le Lamentin","adresse":"LE LAMENTIN 97285"},
+    {"nom":"SAINT-DENIS-ROLAND-GARROS","oaci":"FMEE","iata":"RUN","latitude":-20.89,"longitude":55.5164,"departement_code":974,"departement":"La Réunion","region":"La Réunion","ville":"Saint-Denis","adresse":"SAINTE-MARIE 97438"},
+    {"nom":"CAYENNE-ROCHAMBEAU","oaci":"SOCA","iata":"CAY","latitude":4.8203,"longitude":-52.3603,"departement_code":973,"departement":"Guyane","region":"Guyane","ville":"Cayenne","adresse":"MATOURY 97351"},
+    {"nom":"TAHITI-FAAA","oaci":"NTTT","iata":"PPT","latitude":-17.5525,"longitude":-149.6072,"departement_code":null,"departement":null,"region":"Polynésie française","ville":"Papeete","adresse":"TAHITI POLYNESIE FRANCAISE"},
+    {"nom":"NOUMEA-LA-TONTOUTA","oaci":"NWWW","iata":"NOU","latitude":-22.0158,"longitude":166.2161,"departement_code":null,"departement":null,"region":"Nouvelle-Calédonie","ville":"Nouméa","adresse":"LA TONTOUTA 98840"}
+  ]
+}
+

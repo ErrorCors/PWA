@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gotcha You | Transport Tracker Pro</title>
+    
+    <link rel="icon" type="image/png" href="./favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg" />
+    <link rel="shortcut icon" href="./favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+    <link rel="manifest" href="./favicon/site.webmanifest" />
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="has-navbar-fixed-top">
+
+<div id="main-layout">
+    <nav class="navbar is-link is-fixed-top">
+        <div class="navbar-brand is-flex is-justify-content-space-between is-align-items-center" style="width: 100%; min-height: 3.25rem;">
+            
+            <a role="button" class="navbar-burger ml-0" id="mobile-menu-toggle" aria-label="menu" aria-expanded="false" style="display: block; margin-left: 0;">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+    
+            <div class="navbar-item p-1 mr-2">
+                <span id="install_button" class="mr-1">
+                    <button id="show-dialog" class="button is-primary is-small is-rounded" disabled>
+                        <span class="icon"><i class="fas fa-download"></i></span>
+                    </button>
+                </span>
+    
+                <button id="reload_button" class="button is-warning is-small is-rounded mr-1" disabled>
+                    <span class="icon"><i class="fas fa-sync-alt"></i></span>
+                </button>
+    
+                <button id="btn-locate" class="button is-white is-rounded shadow-floating">
+                    <span class="icon is-small">
+                        <i class="fas fa-location-crosshairs"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="content-area">
+        
+        <aside class="filter-sidebar" id="leftSidebar">
+            
+            <button class="sidebar-toggle-btn is-hidden-mobile" id="desktop-collapse-btn" title="Replier/Déplier">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="p-4">
+                <h2 class="title is-6 has-text-grey mb-4">PARAMÈTRES</h2>
+                
+                <div class="box is-shadowless border has-background-light mb-5">
+                    <div class="is-flex is-justify-content-space-between mb-1">
+                        <label class="label is-small">Rayon de scan</label>
+                        <span id="radiusValue" class="tag is-link">100 km</span>
+                    </div>
+                    <input class="slider is-fullwidth is-circle" id="radiusSlider" step="10" min="10" max="200" value="100" type="range">
+                </div>
+
+                <div class="card mb-3 is-shadowless" style="border: 1px solid #eee;">
+                    <header class="card-header accordion-header" onclick="toggleAccordion('acc-planes')">
+                        <p class="card-header-title has-text-info">
+                            <span class="icon mr-2"><i class="fas fa-plane"></i></span> Aérien
+                        </p>
+                        <button class="card-header-icon" aria-label="more options">
+                            <span class="icon rotate-icon">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </header>
+                    <div class="accordion-content is-expanded" id="acc-planes">
+                        <div class="card-content py-3">
+                            <div class="field">
+                                <input type="checkbox" id="category_planes_checkbox" class="switch is-small" onclick="toggleAllInCategory(this, 'acc-planes'); event.stopPropagation();">
+                                <label for="category_planes_checkbox" class="is-size-7 has-text-weight-bold mb-2">TOUT COCHER</label>
+                            </div>
+                            <label class="checkbox is-block mb-2 ml-2">
+                                <input type="checkbox" id="filter_planes"> Avions en vol
+                            </label>
+                            <label class="checkbox is-block ml-2">
+                                <input type="checkbox" id="filter_airports"> Aéroports
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3 is-shadowless" style="border: 1px solid #eee;">
+                    <header class="card-header accordion-header" onclick="toggleAccordion('acc-rail')">
+                        <p class="card-header-title has-text-success">
+                            <span class="icon mr-2"><i class="fas fa-train"></i></span> Ferroviaire
+                        </p>
+                        <button class="card-header-icon">
+                            <span class="icon rotate-icon">
+                                <i class="fas fa-angle-down"></i>
+                            </span>
+                        </button>
+                    </header>
+                    <div class="accordion-content is-expanded" id="acc-rail">
+                        <div class="card-content py-3">
+                            <div class="field">
+                                <input type="checkbox" id="category_rail_checkbox" class="switch is-small" onclick="toggleAllInCategory(this, 'acc-rail'); event.stopPropagation();">
+                                <label for="category_rail_checkbox" class="is-size-7 has-text-weight-bold mb-2">TOUT COCHER</label>
+                            </div>
+                            <label class="checkbox is-block mb-2 ml-2">
+                                <input type="checkbox" id="filter_trains"> Trains
+                            </label>
+                            <label class="checkbox is-block mb-2 ml-2">
+                                <input type="checkbox" id="filter_train_stations"> Gares
+                            </label>
+                            <label class="checkbox is-block ml-2">
+                                <input type="checkbox" id="filter_railways"> Voies ferrées (Map)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3 is-shadowless" style="border: 1px solid #eee;">
+                    <header class="card-header accordion-header" onclick="toggleAccordion('acc-road')">
+                        <p class="card-header-title has-text-danger">
+                            <span class="icon mr-2"><i class="fas fa-bus"></i></span> Terrestre
+                        </p>
+                        <button class="card-header-icon">
+                            <span class="icon rotate-icon">
+                                <i class="fas fa-angle-down"></i>
+                            </span>
+                        </button>
+                    </header>
+                    <div class="accordion-content is-expanded" id="acc-road">
+                        <div class="card-content py-3">
+                            <label class="checkbox is-block ml-2">
+                                <input type="checkbox" id="filter_buses"> Bus
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="height: 50px;"></div>
+            </div>
+        </aside>
+
+        <div id="map"></div>
+
+        <div id="loader" class="loader-wrapper">
+            <span class="tag is-dark is-large is-rounded">
+                <i class="fas fa-spinner fa-pulse mr-2"></i> Chargement...
+            </span>
+        </div>
+
+        <div id="sidebar" class="info-panel">
+            <div class="is-flex is-justify-content-space-between is-align-items-center p-4 has-background-light border-bottom">
+                <strong class="is-uppercase">Informations</strong>
+                <button id="closeSidebar" class="delete is-medium"></button>
+            </div>
+            <div id="sidebarContent" class="p-0">
+                </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="./js/script.js"></script>
+<script src="./js/pwa.js"></script>
+</body>
+</html>

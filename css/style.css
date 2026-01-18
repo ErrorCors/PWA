@@ -1,0 +1,237 @@
+/* =========================================
+   1. VARIABLES & CONFIGURATION GLOBALE
+   ========================================= */
+   :root {
+    /* Couleurs Thème Sombre "Pro" */
+    --bg-darker: #0d0d0f;
+    --bg-panel: rgba(18, 18, 20, 0.95);
+    --border-glass: rgba(255, 255, 255, 0.1);
+    --primary-color: #3273dc;
+    
+    /* Dimensions */
+    --sidebar-width: 320px;
+    --header-height: 52px;
+    --transition-speed: 0.3s;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Empêche le scroll global */
+    background-color: var(--bg-darker);
+    color: #e0e0e0; /* Texte clair par défaut */
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* =========================================
+   2. LAYOUT PRINCIPAL
+   ========================================= */
+#main-layout {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+    height: var(--header-height);
+    min-height: var(--header-height);
+    z-index: 40;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.navbar-brand { min-height: var(--header-height); align-items: center; }
+.navbar-item { padding: 0.5rem 1rem; }
+
+/* Zone de contenu (Sidebar + Map + Panel) */
+#content-area {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden; /* Important pour garder la map contenue */
+    height: calc(100vh - var(--header-height));
+}
+
+/* Carte */
+#map {
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    background: #1a1a1a; /* Couleur de fond en attendant les tuiles */
+    z-index: 1;
+}
+
+/* =========================================
+   3. SIDEBAR GAUCHE (FILTRES) - DESKTOP
+   ========================================= */
+.filter-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-darker) !important;
+    border-right: 1px solid var(--border-glass);
+    display: flex;
+    flex-direction: column;
+    z-index: 30;
+    transition: margin-left var(--transition-speed) ease, transform var(--transition-speed) ease;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+/* Style des cartes et panels dans la sidebar (Thème Sombre) */
+.filter-sidebar .card {
+    background-color: transparent;
+    box-shadow: none;
+    border: 1px solid var(--border-glass);
+    color: white;
+}
+.filter-sidebar .card-header-title { color: #ccc; }
+.filter-sidebar .label { color: #ccc; }
+.filter-sidebar .checkbox { color: #aaa; }
+.filter-sidebar .checkbox:hover { color: #fff; }
+
+/* Bouton pour replier la sidebar (Desktop uniquement) */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: -32px;
+    width: 32px;
+    height: 32px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-glass);
+    border-left: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 29;
+}
+
+/* =========================================
+   4. SIDEBAR DROITE (DETAILS)
+   ========================================= */
+.info-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 350px;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border-glass);
+    backdrop-filter: blur(15px);
+    z-index: 35;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+    transform: translateX(100%); /* Caché à droite */
+    transition: transform var(--transition-speed) cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    color: white;
+}
+
+.info-panel.is-active {
+    transform: translateX(0);
+}
+
+/* Contenu interne info panel */
+.detail-value { color: #3498db; font-weight: bold; }
+.info-panel strong { color: white; }
+
+/* =========================================
+   5. COMPOSANTS (LOADER, ACCORDEON)
+   ========================================= */
+/* Loader */
+.loader-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.loader-wrapper.is-active { opacity: 1; }
+
+/* Accordéons */
+.accordion-header { cursor: pointer; user-select: none; }
+.accordion-content { display: none; padding-left: 0.5rem; animation: fadeIn 0.3s; }
+.accordion-content.is-expanded { display: block; }
+.rotate-icon { transition: transform 0.3s; }
+.is-expanded .rotate-icon { transform: rotate(180deg); }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   6. MOBILE & TABLETTE (Le Correctif)
+   ========================================= */
+@media screen and (max-width: 1023px) {
+    
+    /* 1. La Sidebar devient un menu glissant (Drawer) */
+    .filter-sidebar {
+        position: fixed !important; /* Force le positionnement */
+        top: 52px; /* Sous la navbar */
+        left: 0;
+        height: calc(100vh - 52px);
+        width: 85%;
+        max-width: 300px;
+        
+        /* Apparence */
+        background-color: #0d0d0f !important; /* Fond opaque obligatoire */
+        border-right: 1px solid #333;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        
+        /* Comportement visuel */
+        z-index: 9999 !important; /* Au-dessus de TOUT */
+        transform: translateX(-110%); /* Caché complètement à gauche */
+        transition: transform 0.3s ease-in-out;
+        
+        /* Scroll */
+        overflow-y: auto;
+        display: block !important;
+    }
+
+    /* 2. État ouvert */
+    .filter-sidebar.is-active {
+        transform: translateX(0) !important; /* Visible */
+    }
+
+    /* 3. Overlay sombre (fond derrière le menu) */
+    #sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.7);
+        z-index: 9998; /* Juste sous le menu */
+        backdrop-filter: blur(3px);
+    }
+    #sidebar-overlay.is-active {
+        display: block !important;
+    }
+
+    /* 4. Sidebar de droite (Détails) sur mobile */
+    .info-panel {
+        width: 100%;
+        height: 70%; /* Ne prend pas tout l'écran */
+        top: auto; /* Collé en bas */
+        bottom: 0;
+        border-left: none;
+        border-top: 1px solid var(--border-glass);
+        transform: translateY(100%); /* Caché vers le bas */
+        border-radius: 20px 20px 0 0;
+    }
+    .info-panel.is-active {
+        transform: translateY(0);
+    }
+
+    /* Cacher les éléments inutiles sur mobile */
+    .sidebar-toggle-btn, 
+    #desktop-collapse-btn {
+        display: none !important;
+    }
+}
