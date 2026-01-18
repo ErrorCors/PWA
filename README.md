@@ -9,7 +9,8 @@ Conçue pour être performante et résiliente, l'application fonctionne hors lig
 ## Fonctionnalités
 
 * **Géolocalisation :** Affichage des véhicules dans un rayon ajustable (10 à 200 km) autour de l'utilisateur.
-> Optimisation : le changement de rayon est instantané et ne consomme pas d'API (filtrage local).
+> [!NOTE]
+> **Optimisation** : le changement de rayon est instantané et ne consomme pas d'API (filtrage local).
 * **Réunification de données :** Fusion de données API (Aérien, Ferroviaire, Bus).
 * **Installation :** Installable sur mobile en PWA.
 * **Mode hors ligne :** L'interface reste accessible et utilisable avec les données chargées en mode en ligne grâce au service-worker.
@@ -167,6 +168,7 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
 
 
