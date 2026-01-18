@@ -56,9 +56,9 @@ Le projet repose sur une architecture **100% Front-end**, sans backend dédié, 
 
 | Type | Source | Stratégie Technique |
 | --- | --- | --- |
-| **Avions** | OpenSky Network | Filtrage géographique post-requête (Client-side filtering). |
-| **Bus** | Bus-Tracker.fr | Requête par Zone géographique. |
-| **Trains** | API Tchoo / Data.gouv | Utilisation d'un Proxy CORS pour l'accès navigateur. |
+| **Avions** | OpenSky Network | Filtrage géographique post-requête. |
+| **Bus** | Bus-Tracker.fr | Requête sur zone étendue fixe (200km) + Filtrage local dynamique. |
+| **Trains** | API Tchoo / Data.gouv | Utilisation du Proxy CORS-ANYWHERE pour l'accès. |
 | **Rails** | OpenRailwayMap | Calque de tuiles (TileLayer) superposé. |
 | **GPS** | Système | Récupération de la position précise de l'utilisateur. |
 | **WAKE LOCK** | Système | Empêche la mise en veille de l'écran lors de l'utilisation. |
@@ -79,8 +79,6 @@ Le projet repose sur une architecture **100% Front-end**, sans backend dédié, 
 > }
 > 
 > ```
-> 
-> 
 
 ---
 
@@ -169,6 +167,7 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
 
 
