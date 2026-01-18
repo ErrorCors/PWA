@@ -12,7 +12,7 @@ Conçue pour être performante et résiliente, l'application fonctionne hors lig
 * **Réunification de données :** Fusion de données API (Aérien, Ferroviaire, Bus).
 * **Installation :** Installable sur mobile en PWA.
 * **Mode hors ligne :** L'interface reste accessible et utilisable avec les données chargées en mode en ligne grâce au service-worker.
-* **Gestion réfléchie du cache et du local storage :** Gestion des données avec des TTL pour limiter les appels API.
+* **Gestion réfléchie du local storage :** Gestion des données avec des TTL pour limiter les appels API.
 * **Cartographie avancée :** Affichage du réseau ferré (OpenRailwayMap) et rotation des icônes selon le bearing communiqué par les APIs.
 
 ---
@@ -168,6 +168,7 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
 
 
