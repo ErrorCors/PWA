@@ -61,9 +61,11 @@ Le projet repose sur une architecture **100% Front-end**, sans backend dédié, 
 | **GPS** | Système | Récupération de la position précise de l'utilisateur. |
 | **WAKE LOCK** | Système | Empêche la mise en veille de l'écran lors de l'utilisation. |
 
+> [!CAUTION]
 > **IMPORTANT SUR LE CORS :** La PWA utilise `cors-anywhere.herokuapp.com` comme proxy pour contourner les restrictions de sécurité des navigateurs sur certaines APIs.
 > **POUR PLUS DE PRÉCISIONS VOIR DANS LA SECTION ARCHITECTURE**
 >
+> [!WARNING]
 > **IMPORTANT SUR LE GPS :** La PWA met à jour la position à chaque mouvement mais gère l'espacement entre les requêtes API pour éviter le blacklistage.
 > ```javascript
 > const now = Date.now();
@@ -162,5 +164,6 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
 
