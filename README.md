@@ -22,7 +22,8 @@ Conçue pour être performante et résiliente, l'application fonctionne hors lig
 Le projet repose sur une architecture **100% Front-end**, sans backend dédié, utilisant des APIs via un proxy open-source :
 `https://cors-anywhere.herokuapp.com/`
 
-***Si le projet venait à être utilisé de manière réaliste, il devrait être mis en place avec un vrai proxy Node.js par exemple pour éviter les problèmes de CORS actuellement gérés avec cors-anywhere mais limité à 20 requests / minute depuis leur dernier changement. Il en est de même pour OpenSky qui, depuis le 1er janvier 2026, a mis à jour sa politique d'API, ce qui cause de nombreuses erreurs. Pour les éviter, le choix a été fait d'utiliser le endpoint global : `https://opensky-network.org/api/states/all`. Mais cela n'est pas très optimisé pour l'utilisateur, d'où le nombre d'appels réduit.***
+> [!IMPORTANT]
+>***Si le projet venait à être utilisé de manière réaliste, il devrait être mis en place avec un vrai proxy Node.js par exemple pour éviter les problèmes de CORS actuellement gérés avec cors-anywhere mais limité à 20 requests / minute depuis leur dernier changement. Il en est de même pour OpenSky qui, depuis le 1er janvier 2026, a mis à jour sa politique d'API, ce qui cause de nombreuses erreurs. Pour les éviter, le choix a été fait d'utiliser le endpoint global : `https://opensky-network.org/api/states/all`. Mais cela n'est pas très optimisé pour l'utilisateur, d'où le nombre d'appels réduit.***
 
 ---
 
@@ -61,12 +62,12 @@ Le projet repose sur une architecture **100% Front-end**, sans backend dédié, 
 | **GPS** | Système | Récupération de la position précise de l'utilisateur. |
 | **WAKE LOCK** | Système | Empêche la mise en veille de l'écran lors de l'utilisation. |
 
-> [!CAUTION]
+> [!WARNING]
 > **IMPORTANT SUR LE CORS :** La PWA utilise `cors-anywhere.herokuapp.com` comme proxy pour contourner les restrictions de sécurité des navigateurs sur certaines APIs.
 > **POUR PLUS DE PRÉCISIONS VOIR DANS LA SECTION ARCHITECTURE**
 
 
-> [!WARNING]
+> [!CAUTION]
 > **IMPORTANT SUR LE GPS :** La PWA met à jour la position à chaque mouvement mais gère l'espacement entre les requêtes API pour éviter le blacklistage.
 > ```javascript
 > const now = Date.now();
@@ -114,7 +115,7 @@ Pour cela, il prend en compte une chose :
 
 * **Le TTL :** 60 secondes pour les positions, 30 secondes pour les infos supplémentaires.
 
-> [!INFO]
+> [!TIP]
 > Le TTL est mesuré suivant l'instant T où l'utilisateur fait la requête à l'API pour éviter les requêtes abusives qui auraient pour conséquence le blacklistage de la PWA par les APIs.
 
 ---
@@ -166,6 +167,7 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
 
 
