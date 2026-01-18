@@ -153,12 +153,14 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 
 ## Auteur & Crédits aux ressources utilisées
 
-* **Développeur :** MERMILLOD-BLONDIN Quentin
+* **Développeur :** ErrorCors
 * **Design :** Bulma CSS
 * **Cartographie :** Leaflet JS / OpenStreetMap contributors
 * **Données :** OpenSky Network, Bus-Tracker, Data.gouv, Tchoo.net
+* **Proxy Cors :** Cors-anywhere
 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
