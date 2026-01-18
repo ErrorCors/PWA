@@ -114,6 +114,7 @@ Pour cela, il prend en compte une chose :
 
 * **Le TTL :** 60 secondes pour les positions, 30 secondes pour les infos supplémentaires.
 
+> [!INFO]
 > Le TTL est mesuré suivant l'instant T où l'utilisateur fait la requête à l'API pour éviter les requêtes abusives qui auraient pour conséquence le blacklistage de la PWA par les APIs.
 
 ---
@@ -165,6 +166,7 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
 
 
 
