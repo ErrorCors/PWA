@@ -99,7 +99,7 @@ Le fichier `service-worker.js` met en cache la liste suivante de fichiers et de 
     ./favicon/favicon-96x96.png,
     ./favicon/apple-touch-icon.png,
 
-    [https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)
+    https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css
 
 ```
 
@@ -161,3 +161,4 @@ const REGISTRATION = await navigator.serviceWorker.register(/*Mettez le nouveau 
 ---
 
 #### ***Projet étudiant réalisé à l'IUT Annecy.***
+
