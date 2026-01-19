@@ -9,7 +9,7 @@ const GARES_URL = "https://www.data.gouv.fr/api/1/datasets/r/c498ad8d-2ec7-48ed-
 const AEROPORTS_URL = "./data/airports.json";
 const API_TRAJET_TRAIN_URL = "https://api.tchoo.net/api/carto.php?action=train&numero=";
 
-// --- URL POUR l'API TRAIN
+// --- URL POUR L'API TRAIN
 const API_TCHOO_TRAIN_URL = "https://api.tchoo.net/trains.json";
 const CORS_PROXY_URL = "https://cors-anywhere.herokuapp.com/";
 const FULL_URL = CORS_PROXY_URL + API_TCHOO_TRAIN_URL;
@@ -50,7 +50,7 @@ const RAILWAYS_TILE_LAYER = L.tileLayer(
     }
 );
 
-// === LISTE DES SELECTEURS DE LA SIDEBAR ===
+// === LISTE DES SÉLECTEURS DE LA SIDEBAR ===
 const FILTERS_LIST = ["planes", "buses", "trains", "train_stations", "airports", "railways"];
 
 
@@ -98,7 +98,7 @@ function hideLoader() {
 
 function initSidebarEvents() {
 
-    // - SIDEBAR DROITE (INFOS / DETAILS) ---
+    // - SIDEBAR DROITE (INFOS / DÉTAILS) ---
     const SIDEBARRIGHT = document.getElementById("sidebar");
     const SIDEBARCONTENT = document.getElementById("sidebarContent");
     const CLOSEBTN = document.getElementById("closeSidebar");
@@ -112,8 +112,8 @@ function initSidebarEvents() {
             if (SIDEBARCONTENT) {
                 SIDEBARCONTENT.innerHTML = "";
             }
-
-            if (window.LAYERS && LAYERS.trainPath) {
+            // --- CLEAR DU LAYER DU TRAJET DE TRAIN POUR EVITER DES AFFICHAGES INCORRECTS ---
+            if (LAYERS.trainPath) {
                 LAYERS.trainPath.clearLayers();
             }
         });
@@ -124,7 +124,7 @@ function initSidebarEvents() {
     const SIDEBARLEFT = document.querySelector(".filter-sidebar");
     let burger = document.getElementById("mobile-menu-toggle");
 
-    // --- CREATION DE L'OVERLAY ---
+    // --- CRÉATION DE L'OVERLAY ---
     let overlay = document.getElementById("sidebar-overlay");
     if (!overlay) {
         overlay = document.createElement("div");
@@ -151,14 +151,14 @@ function initSidebarEvents() {
         });
     }
 
-    // --- CLICK SUR L'OVERLAY FERMETURE ---
+    // --- CLIC SUR L'OVERLAY FERMETURE ---
     overlay.addEventListener("click", function () {
     if (SIDEBARLEFT?.classList.contains("is-active")) {
         toggleMenu();
         }
     });
 
-    // --- CLIQUE SUR LA CARTE SUR MOBILE ---
+    // --- CLIC SUR LA CARTE SUR MOBILE ---
     const MAP = document.getElementById("map");
     if (MAP) {
         MAP.addEventListener("click", function () {
@@ -186,7 +186,7 @@ function openSidebar(htmlContent) {
 }
 
 
-// === ACCORDEONS (FILTRES) ===
+// === ACCORDÉONS (FILTRES) ===
 
 function toggleAccordion(id) {
     const CONTENT = document.getElementById(id);
@@ -252,7 +252,7 @@ async function get(url) {
     showLoader();
     try {
         const RESPONSE = await fetch(url);
-        console.log("Requête terminEe pour : " + url);
+        console.log("Requête terminée pour : " + url);
         if (!RESPONSE.ok) {
             throw new Error("Erreur HTTP : " + RESPONSE.status);
         }
@@ -262,42 +262,50 @@ async function get(url) {
         console.error("Erreur requête :", error);
         return null;
     } finally {
-        hideLoader(); 
+        hideLoader();
     }
 }
 
 /////////////////////////////////////////////////////////////////
-// === FETCH AVEC GET DES DONNEES ET MISE EN LOCAL STORAGE === //
+// === FETCH AVEC GET DES DONNÉES ET MISE EN LOCAL STORAGE === //
 /////////////////////////////////////////////////////////////////
 
 async function fetchLocal(key, url) {
     const EXPIREMS = 60000
     const NOW = Date.now();
-    // --- 1/ RECUPERATION DEPUIS LE LOCALSTORAGE ---
+    // --- 1/ RÉCUPÉRATION DEPUIS LE LOCALSTORAGE ---
     const RAW = localStorage.getItem(key);
-    
+    let obj = null;
+
     if (RAW) {
         try {
-            const OBJ = JSON.parse(RAW);
-            // --- VERIFICATION DU TTL ---
-            if (NOW - OBJ.timestamp < EXPIREMS) {
+            obj = JSON.parse(RAW);
+            // --- VÉRIFICATION DU TTL ---
+            if (NOW - obj.timestamp < EXPIREMS) {
                 console.log(`[LOCALSTORAGE] Chargement depuis '${key}'`);
-                return OBJ.data;
+                return obj.data;
             }
         } catch (e) {
             console.warn("Erreur lecture cache", e);
         }
     }
 
-    // --- 2/ SI LE LOCALSTORAGE EST VIDE OU TTL EXPIRE ---
+    // --- 2/ SI LE LOCALSTORAGE EST VIDE OU TTL EXPIRÉ ---
     const DATA = await get(url);
-    
+
     // --- 3/ MAJ DU LOCALSTORAGE OU STOCKAGE ---
     if (DATA) {
         localStorage.setItem(key, JSON.stringify({ data: DATA, timestamp: NOW }));
         console.log(`[LOCALSTORAGE] Sauvegarde sous '${key}'`);
+        return DATA;
+    } else {
+        console.log('Mode hors connexion utilisation des dernières données en cache.');
+        // --- VÉRIF SI OBJ N'EST PAS VIDE ---
+        if (obj) {
+            return obj.data;
+        }
     }
-    return DATA;
+    return null;
 }
 
 
@@ -305,7 +313,7 @@ async function fetchLocal(key, url) {
 
 
 //////////////////////////////////////////////////////
-// === MATHS POUR GEOLOC ET CALCULE DE POSITION === //
+// === MATHS POUR GÉOLOC ET CALCUL DE POSITION === //
 //////////////////////////////////////////////////////
 
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -320,11 +328,13 @@ function isValidAndInRadius(lat, lon) {
         return false;
     }
     if (!userLat || !userLon){
-    return true; 
+    return true;
     }
     return distanceKm(userLat, userLon, lat, lon) <= radiusKm;
 }
 
+
+// --- FONCTION D'AJOUT DES MARKERS A LA CARTE ---
 function addMarkerToLayer(lat, lon, icon, layer, rotationAngle, popupContentOrFn) {
     const MARKER = L.marker([lat, lon], {
         icon: icon,
@@ -333,14 +343,14 @@ function addMarkerToLayer(lat, lon, icon, layer, rotationAngle, popupContentOrFn
     }).addTo(layer);
 
     MARKER.on("click", async function() {
-        let content;
-        if (typeof popupContentOrFn === 'function') {
-            content = await popupContentOrFn();
-        } else {
-            content = popupContentOrFn;
-        }
-        openSidebar(content);
-    });
+      let content;
+      if (typeof popupContentOrFn === 'function') {
+          content = await popupContentOrFn();
+      } else {
+          content = popupContentOrFn;
+      }
+      openSidebar(content);
+  });
 }
 
 
@@ -368,31 +378,31 @@ function initMap() {
 
 
 ////////////////////
-// === GEOLOC === //
+// === GÉOLOC === //
 ////////////////////
 
 function getUserLocation() {
-    // --- SI LA GEOLOC N'EST PAS SUPPORTE ON ARRETE
+    // --- SI LA GÉOLOC N'EST PAS SUPPORTÉE ON ARRÊTE
     if (!navigator.geolocation) {
-        console.warn("La gEolocalisation n'est pas supportEe.");
+        console.warn("La géolocalisation n'est pas supportée.");
         return;
     }
 
-    // --- OPTIONS POUR LA GEOLOC ---
+    // --- OPTIONS POUR LA GÉOLOC ---
     const OPTIONS = {
-        // --- UTILISATION DU GPS MATERIEL ---
+        // --- UTILISATION DU GPS MATÉRIEL ---
         enableHighAccuracy: true,
-        // --- SI LE GPS NE FONCTIONNE PAS APRES 10s ON ARRETE POUR EVITER LES BUS (DEBUG) ---
-        timeout: 10000,         
-        // --- ON NE MET PAS DE POSITION EN CACHE ---  
-        maximumAge: 0             
+        // --- SI LE GPS NE FONCTIONNE PAS APRÈS 10s ON ARRÊTE POUR ÉVITER LES BUS (DEBUG) ---
+        timeout: 10000,
+        // --- ON NE MET PAS DE POSITION EN CACHE ---
+        maximumAge: 0
     };
 
-    // --- UTILISATION DE WATCHPOSITION POUR UN RAFRAICHISSEMENT A CHAQUE DEPLACEMENT ---
+    // --- UTILISATION DE WATCHPOSITION POUR UN RAFRAÎCHISSEMENT À CHAQUE DÉPLACEMENT ---
     userWatchId = navigator.geolocation.watchPosition(
         function(pos) {
             console.log("Nouvelle position");
-            
+
             userLat = pos.coords.latitude;
             userLon = pos.coords.longitude;
 
@@ -405,7 +415,7 @@ function getUserLocation() {
             // ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠  //
             const NOW = Date.now();
             if (NOW - lastRefreshTime > REFRESH_DELAY) {
-                console.log("Actualisation API, dElai entre appels OK.");
+                console.log("Actualisation API, délai entre appels OK.");
                 refreshData();
                 lastRefreshTime = NOW;
             }
@@ -413,7 +423,7 @@ function getUserLocation() {
         function(e) {
             console.error("Erreur GPS :", e);
         },
-        OPTIONS 
+        OPTIONS
     );
 }
 
@@ -423,7 +433,7 @@ function updateGeolocCircle() {
         return;
     }
     L.circle([userLat, userLon], { radius: radiusKm * 1000, color: 'blue', fill: false, weight: 2 }).addTo(LAYERS.geoloc);
-    L.marker([userLat, userLon]).bindPopup("Vous êtes ici").addTo(LAYERS.geoloc).openPopup();
+    L.marker([userLat, userLon]).addTo(LAYERS.geoloc).openPopup();
 }
 
 // === CERCLE AUTOUR DU USER ===
@@ -432,7 +442,7 @@ function initRadiusSlider() {
     const TEXT = document.getElementById("radiusValue");
 
     if (SLIDER && TEXT) {
-        
+
         // --- CHANGEMENT VISUEL (INPUT) ---
         SLIDER.addEventListener("input", function(e) {
             radiusKm = parseInt(e.target.value);
@@ -440,10 +450,10 @@ function initRadiusSlider() {
             updateGeolocCircle();
         });
 
-        // --- RELACHEMENT DU SLIDER (CHANGE) ---
+        // --- RELÂCHEMENT DU SLIDER (CHANGE) ---
         SLIDER.addEventListener("change", function(e) {
-            console.log("Changement de rayon : mise à jour de l'affichage.");            
-            refreshData(); 
+            console.log("Changement de rayon : mise à jour de l'affichage.");
+            refreshData();
         });
     }
 }
@@ -456,26 +466,26 @@ let wakeLock = null;
 
 // --- ACTIVATION WAKE LOCK
 async function activateWakeLock() {
-    // --- VERIF SI SUPPORTE PAR LE NAVIGATEUR ---
+    // --- VÉRIF SI SUPPORTÉ PAR LE NAVIGATEUR ---
     if ('wakeLock' in navigator) {
         try {
             wakeLock = await navigator.wakeLock.request('screen');
-            console.log('Wake Lock activE.');
+            console.log('Wake Lock activé.');
 
-            // --- DEBUGAGE SI LE WAKE LOCK EST FORCE DE S'ARRETER (ATTENTION BATTERIE FAIBLE) ---
+            // --- DÉBOGAGE SI LE WAKE LOCK EST FORCÉ DE S'ARRÊTER (ATTENTION BATTERIE FAIBLE) ---
             wakeLock.addEventListener('release', function() {
-                console.log('Wake LOCK dEsactivE.');
+                console.log('Wake LOCK désactivé.');
             });
 
         } catch (e) {
             console.error(`Erreur Lock: ${e}`);
         }
     } else {
-        console.warn("Wake Lock n'est pas supportE.");
+        console.warn("Wake Lock n'est pas supporté.");
     }
 }
 
-// --- DEBUGAGE SI L'UTILISATEUR QUITTE ET REVIENT SUR LE NAV POUR EVITER LA DESACTIVATION ---
+// --- DÉBOGAGE SI L'UTILISATEUR QUITTE ET REVIENT SUR LE NAV POUR ÉVITER LA DÉSACTIVATION ---
 function handleVisibilityChange() {
     if (wakeLock !== null && document.visibilityState === 'visible') {
         activateWakeLock();
@@ -521,33 +531,33 @@ function handleLayerState(checkboxId, layerGroup, fetchFunction) {
 
 
 ////////////////////////////////////////////
-// === REQUETES API + TRI DES DONNEES === //
+// === REQUÊTES API + TRI DES DONNÉES === //
 ////////////////////////////////////////////
 
 
 // === 1/ AVIONS -> PositionsDesAvions ===
 async function fetchDonneeAvions() {
-    // --- SI ON N'A PAS LA GEOLOC DE USER ALORS ON NE FAIT AUCUNE REQUETE --- 
-    
+    // --- SI ON N'A PAS LA GÉOLOC DE USER ALORS ON NE FAIT AUCUNE REQUÊTE ---
+
     // --- ATTENTION SI ON COMMENTE CETTE LIGNE ALORS TOUS LES AVIONS DU MONDE S'AFFICHENT !!!! ---
 
     if (!userLat || !userLon) {
         return;
     }
 
-    // --- INTERROGATION DU LOCAL STORAGE POUR EVITER DE FAIRE DES REQUETES INUTILES ---
+    // --- INTERROGATION DU LOCAL STORAGE POUR ÉVITER DE FAIRE DES REQUÊTES INUTILES ---
     const DATA = await fetchLocal("PositionsDesAvions", API_AVION_URL);
-    if (!DATA?.states) 
+    if (!DATA?.states)
         return;
 
-    // --- CLEAR DU LAYER POUR EVITER LES ERREURS D'AFFICHAGE ---
+    // --- CLEAR DU LAYER POUR ÉVITER LES ERREURS D'AFFICHAGE ---
     LAYERS.planes.clearLayers();
     let state, icao24, callsign, country, time, lastC, lon, lat, alt, ground, vel, heading, vert, html;
 
-    // --- POUR TOUS LES AVIONS ON RECUPERE LES INFOS DANS UN TAB ---
+    // --- POUR TOUS LES AVIONS ON RÉCUPÈRE LES INFOS DANS UN TAB ---
     for (state of DATA.states) {
         [icao24, callsign, country, time, lastC, lon, lat, alt, ground, vel, heading, vert] = state;
-        // --- ON VERIF SI L'AVION EST BIEN DANS LE RADIUS CHOISI PAR L'USER ---
+        // --- ON VÉRIF SI L'AVION EST BIEN DANS LE RADIUS CHOISI PAR L'USER ---
         if (isValidAndInRadius(lat, lon)) {
             // --- S'IL EST BIEN DANS LE RAYON ON AJOUTE UN AVION SUR LA CARTE ---
             html = buildPlanePopup(callsign, vel, alt, country, vert, ground, icao24);
@@ -559,21 +569,21 @@ async function fetchDonneeAvions() {
 // === 2/ BUS -> PositionsDesBus / InfosSuppBus ===
 async function fetchDonneeBus() {
 
-    // --- SI ON N'A PAS LA GEOLOC ALORS ON NE FAIT RIEN ---
+    // --- SI ON N'A PAS LA GÉOLOC ALORS ON NE FAIT RIEN ---
     if (!userLat || !userLon) {
         return;
     }
 
-    // --- CALCULE DU RAYON DE 200KM AUTOUR DU USER ---
+    // --- CALCUL DU RAYON DE 200KM AUTOUR DU USER ---
     let delta_lat = (RAYON_MAX_FETCH / EARTH_RADIUS_KM) * (180 / Math.PI);
     let delta_lon = (RAYON_MAX_FETCH / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLat * Math.PI / 180);
 
-    const FACTOR = 1.0; 
+    const FACTOR = 1.0;
 
     const URL = `${BUS_TRACKER_URL}?swLat=${userLat - delta_lat * FACTOR}&swLon=${userLon - delta_lon * FACTOR}&neLat=${userLat + delta_lat * FACTOR}&neLon=${userLon + delta_lon * FACTOR}`;
-    
+
     const DATA = await fetchLocal("PositionsDesBus", URL);
-    
+
     if (!DATA?.items) {
         return;
     }
@@ -588,21 +598,21 @@ async function fetchDonneeBus() {
         if (item.id.includes("ServiceJourney")) {
             continue;
         }
-        
+
         lat = item.position?.latitude;
         lon = item.position?.longitude;
 
         if (isValidAndInRadius(lat, lon)) {
-            
+
             popupFn = async function() {
-                openSidebar("Chargement des donnEes...");
+                openSidebar("Chargement des données...");
                 try {
                     details_url = `https://bus-tracker.fr/api/vehicle-journeys/${encodeURIComponent(item.id)}`;
-                    // --- 30s DE VALIDITE POUR LES DETAILS ---
+                    // --- 30s DE VALIDITÉ POUR LES DÉTAILS ---
                     details = await fetchLocal("InfosSuppBus_" + item.id, details_url, 30000);
                     return buildBusPopup(details);
-                } catch (e) { 
-                    return "Erreur lors du chargement des donnEes"; 
+                } catch (e) {
+                    return "Erreur lors du chargement des données";
                 }
             };
             addMarkerToLayer(lat, lon, ICON_BUS, LAYERS.buses, item.position.bearing, popupFn);
@@ -612,7 +622,7 @@ async function fetchDonneeBus() {
 
 // === 3/ TRAINS -> PositionsDesTrains / InfosSuppTrains ===
 async function fetchTrains() {
-    // --- SI ON N'A PAS LA GEOLOC DE USER ALORS ON NE FAIT AUCUNE REQUETE ---
+    // --- SI ON N'A PAS LA GÉOLOC DE USER ALORS ON NE FAIT AUCUNE REQUÊTE ---
     if (!userLat || !userLon) {
         return;
     }
@@ -633,12 +643,12 @@ async function fetchTrains() {
         // --- SINON IL PASSE AU FEATURE SUIVANT ---
         if (!FEATURE.geometry?.coordinates) {
             continue;
-        }   
+        }
 
         lon = parseFloat(FEATURE.geometry.coordinates[0]);
         lat = parseFloat(FEATURE.geometry.coordinates[1]);
 
-        // --- SI LE TRAIN EST BIEN DE LE RAYON ALORS ON L'AFFICHE ETC COMME POUR LES AVIONS ---
+        // --- SI LE TRAIN EST BIEN DANS LE RAYON ALORS ON L'AFFICHE ETC COMME POUR LES AVIONS ---
         if (isValidAndInRadius(lat, lon)) {
             popupFn = async function() {
                 if (FEATURE.properties.numero) {
@@ -654,29 +664,29 @@ async function fetchTrains() {
 // === 4/ TRAJET TRAIN -> Utilise InfosSuppTrains ===
 async function fetchTrajetTrain(trainNumero) {
 
-    // --- SI LE TRAIN N'A PAS DE NUMERO ON NE CONTINUE PAS CAR IL EST OBLIGATOIRE POUR L'URL SUIVANT ---
+    // --- SI LE TRAIN N'A PAS DE NUMÉRO ON NE CONTINUE PAS CAR IL EST OBLIGATOIRE POUR L'URL SUIVANT ---
     if (!trainNumero) {
         return;
     }
 
-    // --- ON CLEAR L'ANCIEN CHEMIN POUR ETRE SUR QUE LA CARTE SOIT PROPRE ---
+    // --- ON CLEAR L'ANCIEN CHEMIN POUR ÊTRE SÛR QUE LA CARTE SOIT PROPRE ---
     LAYERS.trainPath.clearLayers();
 
-    // --- ON CONSTRUIT L'URL AVEC LE NUMERO DE TRAIN
+    // --- ON CONSTRUIT L'URL AVEC LE NUMÉRO DE TRAIN
     const URL = CORS_PROXY_URL + API_TRAJET_TRAIN_URL + trainNumero;
 
     try {
-        // --- ON PREND DANS LE LOCAL STORAGE SI ON A DEJA POUR CE TRAIN ---
+        // --- ON PREND DANS LE LOCAL STORAGE SI ON A DÉJÀ POUR CE TRAIN ---
         const DATA = await fetchLocal("InfosSuppTrains_" + trainNumero, URL);
-        
-        // --- SI IL NE RETURN RIEN DANS DATA ALORS ON ARRETE TOUT CAR ON EXPLOITE DATA ENSUITE ---
+
+        // --- SI IL NE RETURN RIEN DANS DATA ALORS ON ARRÊTE TOUT CAR ON EXPLOITE DATA ENSUITE ---
         if (!DATA) {
             return;
         }
 
         let latlngs = [], feature, coords, type;
-        
-        // --- TRACE DU CHEMIN DU TRAIN ---
+
+        // --- TRACÉ DU CHEMIN DU TRAIN ---
         if (DATA.type === "FeatureCollection" && Array.isArray(DATA.features)) {
             for (let i = 0; i < DATA.features.length; i++) {
                 feature = DATA.features[i];
@@ -700,9 +710,9 @@ async function fetchTrajetTrain(trainNumero) {
                     }
                 }
             }
-        } 
+        }
 
-        // --- SI LES DONNEES SONT UN SIMPLE TABLEAU ---
+        // --- SI LES DONNÉES SONT UN SIMPLE TABLEAU ---
         else if (Array.isArray(DATA)) {
             let p;
             for (let i = 0; i < DATA.length; i++) {
@@ -710,8 +720,8 @@ async function fetchTrajetTrain(trainNumero) {
                 if (p.lat && p.lon) {
                     latlngs.push([parseFloat(p.lat), parseFloat(p.lon)]);
                 } else if (Array.isArray(p)) {
-                     latlngs.push([p[0], p[1]]);
-                } 
+                      latlngs.push([p[0], p[1]]);
+                }
             }
         }
 
@@ -737,11 +747,11 @@ async function fetchGares() {
     }
     // --- DEMANDE LE LOCAL STORAGE POUR LA POSITION DES GARES ---
     const DATA = await fetchLocal("PositionsDesGares", GARES_URL, 60000);
-    
+
     if (!CHECKBOX.checked || !DATA) {
         return;
     }
-    
+
     LAYERS.trainStations.clearLayers();
     let lat,lon,html;
     for (const STATION of DATA) {
@@ -754,16 +764,16 @@ async function fetchGares() {
     }
 }
 
-// === 6/ AEROPORTS -> PositionsDesAeroports ===
+// === 6/ AÉROPORTS -> PositionsDesAeroports ===
 async function fetchAeroports() {
     const CHECKBOX = document.getElementById("filter_airports");
     if (!CHECKBOX || !CHECKBOX.checked) {
         return;
     }
-    
-    // --- LOCAL STORAGE POSITIONS DES AEROPORTS ---
+
+    // --- LOCAL STORAGE POSITIONS DES AÉROPORTS ---
     const DATA = await fetchLocal("PositionsDesAeroports", AEROPORTS_URL, 60000);
-    
+
     if (!CHECKBOX.checked || !DATA?.aeroports) {
         return;
     }
@@ -783,7 +793,7 @@ async function fetchAeroports() {
 
 
 ///////////////////////////////////////////////////////////////////
-// === CONSTRUCTION DES HTML POPUP POUR AFFICHER LES DETAILS === //
+// === CONSTRUCTION DES HTML POPUP POUR AFFICHER LES DÉTAILS === //
 ///////////////////////////////////////////////////////////////////
 
 function buildPlanePopup(callsign, vel, alt, country, vert, ground, icao) {
@@ -793,7 +803,7 @@ function buildPlanePopup(callsign, vel, alt, country, vert, ground, icao) {
 }
 
 function buildBusPopup(data) {
-    if (!data) return '<div class="notification is-danger">DonnEes indisponibles</div>';
+    if (!data) return '<div class="notification is-danger">Données indisponibles</div>';
     let callsHtml = "";
     if (data.calls?.length) {
         callsHtml = `<p class="menu-label mt-4">Prochains arrêts</p><ul class="menu-list mb-4">`;
@@ -808,12 +818,12 @@ function buildBusPopup(data) {
 }
 
 function buildTrainPopup(props) {
-    return `<div class="message is-success mb-4"><div class="message-header"><p>Train ${props.numero || ""}</p></div><div class="message-body"><p>Destination: <strong>${props.fin || "?"}</strong></p><p>Ligne: ${props.ligne || "?"}</p><p class="is-size-7 has-text-grey mt-2">Trajet affichE sur la carte</p></div></div>`;
+    return `<div class="message is-success mb-4"><div class="message-header"><p>Train ${props.numero || ""}</p></div><div class="message-body"><p>Destination: <strong>${props.fin || "?"}</strong></p><p>Ligne: ${props.ligne || "?"}</p><p class="is-size-7 has-text-grey mt-2">Trajet affiché sur la carte</p></div></div>`;
 }
 
 function buildStationPopup(nom, lat, lon) {
     let dist = userLat ? distanceKm(userLat, userLon, lat, lon).toFixed(1) : "?";
-    return `<div class="box is-shadowless"><h3 class="title is-4">${nom}</h3><p>Distance: ${dist} km</p><button class="button is-small is-fullwidth mt-2" onclick="window.open('http://maps.google.com/?q=${lat},${lon}')">ItinEraire</button></div>`;
+    return `<div class="box is-shadowless"><h3 class="title is-4">${nom}</h3><p>Distance: ${dist} km</p><button class="button is-small is-fullwidth mt-2" onclick="window.open('http://maps.google.com/?q=${lat},${lon}')">Itinéraire</button></div>`;
 }
 
 function buildAirportPopup(ap, lat, lon) {
@@ -828,9 +838,9 @@ function buildAirportPopup(ap, lat, lon) {
 ///////////////////////////////////
 
 //⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠//
-//                                                                          //
+//                                                                    //
 // === ⚠⚠⚠  NE PAS TOUCHER SINON LE BEARING NE FONCTIONNE PLUS  ⚠⚠⚠ === //
-//                                                                         //
+//                                                                    //
 //⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠//
 
 
@@ -864,13 +874,13 @@ function buildAirportPopup(ap, lat, lon) {
 
 
 /////////////////////////////////////////
-// === DEMARRAGE GLOBAL DE LA PAGE === //
+// === DÉMARRAGE GLOBAL DE LA PAGE === //
 /////////////////////////////////////////
 window.onload = function() {
     initMap();
     initRadiusSlider();
     initFilters();
-    initSidebarEvents(); 
+    initSidebarEvents();
     const BTN_LOCATE = document.getElementById("btn-locate");
     if (BTN_LOCATE) {
         BTN_LOCATE.addEventListener("click", getUserLocation);
