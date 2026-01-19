@@ -3,11 +3,11 @@
 ////////////////////////
 
 // === CONSTANTES GLOBALES POUR API ===
-const API_PLANES_URL = "https://opensky-network.org/api/states/all";
+const API_AVION_URL = "https://opensky-network.org/api/states/all";
 const BUS_TRACKER_URL = "https://bus-tracker.fr/api/vehicle-journeys/markers";
-const TRAIN_STATIONS_URL = "https://www.data.gouv.fr/api/1/datasets/r/c498ad8d-2ec7-48ed-9949-28003f49f24f";
-const AIRPORTS_URL = "./data/airports.json";
-const API_TRAIN_ROUTE_URL = "https://api.tchoo.net/api/carto.php?action=train&numero=";
+const GARES_URL = "https://www.data.gouv.fr/api/1/datasets/r/c498ad8d-2ec7-48ed-9949-28003f49f24f";
+const AEROPORTS_URL = "./data/airports.json";
+const API_TRAJET_TRAIN_URL = "https://api.tchoo.net/api/carto.php?action=train&numero=";
 
 // --- URL POUR l'API TRAIN
 const API_TCHOO_TRAIN_URL = "https://api.tchoo.net/trains.json";
@@ -15,7 +15,7 @@ const CORS_PROXY_URL = "https://cors-anywhere.herokuapp.com/";
 const FULL_URL = CORS_PROXY_URL + API_TCHOO_TRAIN_URL;
 
 // --- CONSTANTE POUR LE BUS ---
-const MAX_FETCH_RADIUS_KM = 200;
+const RAYON_MAX_FETCH = 200;
 
 
 // === CONSTANTES POUR LEAFLET ===
@@ -23,11 +23,11 @@ const MAP_DEFAULT_LAT = 46.603354;
 const MAP_DEFAULT_LON = 1.888334;
 const MAP_DEFAULT_ZOOM = 6;
 const EARTH_RADIUS_KM = 6371;
-const PLANE_ICON = L.icon({ iconUrl: './assets/plane.svg', iconSize:[35,35], iconAnchor:[17,17] });
-const BUS_ICON = L.icon({ iconUrl: './assets/bus.svg', iconSize: [30, 30], iconAnchor: [15, 15] });
-const TRAIN_ICON = L.icon({ iconUrl: "./assets/train.svg", iconSize: [32, 32], iconAnchor: [16, 16] });
-const STATION_ICON = L.icon({ iconUrl: "./assets/train_station.svg", iconSize: [24,24], iconAnchor: [12,24] });
-const TOWER_ICON = L.icon({ iconUrl: "./assets/control_tower.svg", iconSize: [30, 30], iconAnchor: [15, 15] });
+const ICON_AVION = L.icon({ iconUrl: './assets/plane.svg', iconSize:[35,35], iconAnchor:[17,17] });
+const ICON_BUS = L.icon({ iconUrl: './assets/bus.svg', iconSize: [30, 30], iconAnchor: [15, 15] });
+const ICON_TRAIN = L.icon({ iconUrl: "./assets/train.svg", iconSize: [32, 32], iconAnchor: [16, 16] });
+const ICON_GARE = L.icon({ iconUrl: "./assets/train_station.svg", iconSize: [24,24], iconAnchor: [12,24] });
+const ICON_AEROPORT = L.icon({ iconUrl: "./assets/control_tower.svg", iconSize: [30, 30], iconAnchor: [15, 15] });
 
 const LAYERS = {
     geoloc: L.layerGroup(),
@@ -68,6 +68,7 @@ let radiusKm = 100;
 // --- REFRESH APPELS API GPS ---
 const REFRESH_DELAY = 60000;
 let lastRefreshTime = 0;
+
 // --- ID DU SUIVI GPS ---
 let userWatchId = null;
 
@@ -351,6 +352,7 @@ function addMarkerToLayer(lat, lon, icon, layer, rotationAngle, popupContentOrFn
 //////////////////////
 // === INIT MAP === //
 //////////////////////
+
 function initMap() {
     mapInstance = L.map("map").setView([MAP_DEFAULT_LAT, MAP_DEFAULT_LON], MAP_DEFAULT_ZOOM);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -535,7 +537,7 @@ async function fetchDonneeAvions() {
     }
 
     // --- INTERROGATION DU LOCAL STORAGE POUR EVITER DE FAIRE DES REQUETES INUTILES ---
-    const DATA = await fetchLocal("PositionsDesAvions", API_PLANES_URL);
+    const DATA = await fetchLocal("PositionsDesAvions", API_AVION_URL);
     if (!DATA?.states) 
         return;
 
@@ -550,7 +552,7 @@ async function fetchDonneeAvions() {
         if (isValidAndInRadius(lat, lon)) {
             // --- S'IL EST BIEN DANS LE RAYON ON AJOUTE UN AVION SUR LA CARTE ---
             html = buildPlanePopup(callsign, vel, alt, country, vert, ground, icao24);
-            addMarkerToLayer(lat, lon, PLANE_ICON, LAYERS.planes, heading, html);
+            addMarkerToLayer(lat, lon, ICON_AVION, LAYERS.planes, heading, html);
         }
     }
 }
@@ -564,8 +566,8 @@ async function fetchDonneeBus() {
     }
 
     // --- CALCULE DU RAYON DE 200KM AUTOUR DU USER ---
-    let delta_lat = (MAX_FETCH_RADIUS_KM / EARTH_RADIUS_KM) * (180 / Math.PI);
-    let delta_lon = (MAX_FETCH_RADIUS_KM / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLat * Math.PI / 180);
+    let delta_lat = (RAYON_MAX_FETCH / EARTH_RADIUS_KM) * (180 / Math.PI);
+    let delta_lon = (RAYON_MAX_FETCH / EARTH_RADIUS_KM) * (180 / Math.PI) / Math.cos(userLat * Math.PI / 180);
 
     const FACTOR = 1.0; 
 
@@ -604,7 +606,7 @@ async function fetchDonneeBus() {
                     return "Erreur lors du chargement des données"; 
                 }
             };
-            addMarkerToLayer(lat, lon, BUS_ICON, LAYERS.buses, item.position.bearing, popupFn);
+            addMarkerToLayer(lat, lon, ICON_BUS, LAYERS.buses, item.position.bearing, popupFn);
         }
     }
 }
@@ -645,7 +647,7 @@ async function fetchTrains() {
                 }
                 return buildTrainPopup(FEATURE.properties);
             };
-            addMarkerToLayer(lat, lon, TRAIN_ICON, LAYERS.trains, FEATURE.properties.angle, popupFn);
+            addMarkerToLayer(lat, lon, ICON_TRAIN, LAYERS.trains, FEATURE.properties.angle, popupFn);
         }
     }
 }
@@ -662,7 +664,7 @@ async function fetchTrajetTrain(trainNumero) {
     LAYERS.trainPath.clearLayers();
 
     // --- ON CONSTRUIT L'URL AVEC LE NUMERO DE TRAIN
-    const URL = CORS_PROXY_URL + API_TRAIN_ROUTE_URL + trainNumero;
+    const URL = CORS_PROXY_URL + API_TRAJET_TRAIN_URL + trainNumero;
 
     try {
         // --- ON PREND DANS LE LOCAL STORAGE SI ON A DEJA POUR CE TRAIN ---
@@ -735,7 +737,7 @@ async function fetchGares() {
         return;
     }
     // --- DEMANDE LE LOCAL STORAGE POUR LA POSITION DES GARES ---
-    const DATA = await fetchLocal("PositionsDesGares", TRAIN_STATIONS_URL, 60000);
+    const DATA = await fetchLocal("PositionsDesGares", GARES_URL, 60000);
     
     if (!CHECKBOX.checked || !DATA) {
         return;
@@ -748,7 +750,7 @@ async function fetchGares() {
         lon = STATION.position_geographique?.lon;
         if (isValidAndInRadius(lat, lon)) {
             html = buildStationPopup(STATION.nom, lat, lon);
-            addMarkerToLayer(lat, lon, STATION_ICON, LAYERS.trainStations, 0, html);
+            addMarkerToLayer(lat, lon, ICON_GARE, LAYERS.trainStations, 0, html);
         }
     }
 }
@@ -761,7 +763,7 @@ async function fetchAeroports() {
     }
     
     // --- LOCAL STORAGE POSITIONS DES AEROPORTS ---
-    const DATA = await fetchLocal("PositionsDesAeroports", AIRPORTS_URL, 60000);
+    const DATA = await fetchLocal("PositionsDesAeroports", AEROPORTS_URL, 60000);
     
     if (!CHECKBOX.checked || !DATA?.aeroports) {
         return;
@@ -773,7 +775,7 @@ async function fetchAeroports() {
         lon = AIRPORT.longitude;
         if (isValidAndInRadius(lat, lon)) {
             const html = buildAirportPopup(AIRPORT, lat, lon);
-            addMarkerToLayer(lat, lon, TOWER_ICON, LAYERS.airports, 0, html);
+            addMarkerToLayer(lat, lon, ICON_AEROPORT, LAYERS.airports, 0, html);
         }
     }
 }
