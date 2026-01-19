@@ -93,12 +93,12 @@ function hideLoader() {
 // === SIDEBAR === //
 /////////////////////
 
-// =======================================
-// GESTION DES SIDEBARS GAUCHE & DROITE
-// =======================================
+
+// === GESTION DES SIDEBARS GAUCHE & DROITE ===
+
 function initSidebarEvents() {
 
-    // ===== SIDEBAR DROITE (INFOS / DETAILS) =====
+    // - SIDEBAR DROITE (INFOS / DETAILS) ---
     const SIDEBARRIGHT = document.getElementById("sidebar");
     const SIDEBARCONTENT = document.getElementById("sidebarContent");
     const CLOSEBTN = document.getElementById("closeSidebar");
@@ -120,7 +120,7 @@ function initSidebarEvents() {
     }
 
 
-    // ===== SIDEBAR GAUCHE (FILTRES - MOBILE) =====
+    // --- SIDEBAR GAUCHE (FILTRES - MOBILE) ---
     const SIDEBARLEFT = document.querySelector(".filter-sidebar");
     let burger = document.getElementById("mobile-menu-toggle");
 
@@ -173,9 +173,8 @@ function initSidebarEvents() {
     }
 }
 
-// =======================================
-// OUVERTURE SIDEBAR DROITE
-// =======================================
+// === OUVERTURE SIDEBAR DROITE ===
+
 function openSidebar(htmlContent) {
     const SIDEBAR = document.getElementById("sidebar");
     const CONTENT = document.getElementById("sidebarContent");
@@ -186,9 +185,9 @@ function openSidebar(htmlContent) {
     }
 }
 
-// =======================================
-// ACCORDÉONS (FILTRES)
-// =======================================
+
+// === ACCORDEONS (FILTRES) ===
+
 function toggleAccordion(id) {
     const CONTENT = document.getElementById(id);
     if (!CONTENT) {
@@ -199,9 +198,9 @@ function toggleAccordion(id) {
     HEADER?.classList.toggle("is-expanded");
 }
 
-// =======================================
-// TOUT COCHER (FILTRES)
-// =======================================
+
+// === TOUT COCHER (FILTRES) ===
+
 function toggleAllInCategory(sourceCheckbox, containerId) {
     const CONTAINER = document.getElementById(containerId);
     if (!CONTAINER) {
@@ -217,9 +216,8 @@ function toggleAllInCategory(sourceCheckbox, containerId) {
     }
 }
 
-// =======================================
-// FILTRES
-// =======================================
+// === FILTRES ===
+
 function initFilters() {
     for (const FILTERID of FILTERS_LIST) {
         const EL = document.getElementById("filter_" + FILTERID);
@@ -254,7 +252,7 @@ async function get(url) {
     showLoader();
     try {
         const RESPONSE = await fetch(url);
-        console.log("Requête terminée pour : " + url);
+        console.log("Requête terminEe pour : " + url);
         if (!RESPONSE.ok) {
             throw new Error("Erreur HTTP : " + RESPONSE.status);
         }
@@ -269,8 +267,9 @@ async function get(url) {
 }
 
 /////////////////////////////////////////////////////////////////
-// === fetch avec get des données et mise en local storage === //
+// === FETCH AVEC GET DES DONNEES ET MISE EN LOCAL STORAGE === //
 /////////////////////////////////////////////////////////////////
+
 async function fetchLocal(key, url) {
     const EXPIREMS = 60000
     const NOW = Date.now();
@@ -375,7 +374,7 @@ function initMap() {
 function getUserLocation() {
     // --- SI LA GEOLOC N'EST PAS SUPPORTE ON ARRETE
     if (!navigator.geolocation) {
-        console.warn("La géolocalisation n'est pas supportée.");
+        console.warn("La gEolocalisation n'est pas supportEe.");
         return;
     }
 
@@ -406,7 +405,7 @@ function getUserLocation() {
             // ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠  //
             const NOW = Date.now();
             if (NOW - lastRefreshTime > REFRESH_DELAY) {
-                console.log("Actualisation API, délai entre appels OK.");
+                console.log("Actualisation API, dElai entre appels OK.");
                 refreshData();
                 lastRefreshTime = NOW;
             }
@@ -461,18 +460,18 @@ async function activateWakeLock() {
     if ('wakeLock' in navigator) {
         try {
             wakeLock = await navigator.wakeLock.request('screen');
-            console.log('Wake Lock activé.');
+            console.log('Wake Lock activE.');
 
             // --- DEBUGAGE SI LE WAKE LOCK EST FORCE DE S'ARRETER (ATTENTION BATTERIE FAIBLE) ---
             wakeLock.addEventListener('release', function() {
-                console.log('Wake LOCK désactivé.');
+                console.log('Wake LOCK dEsactivE.');
             });
 
         } catch (e) {
             console.error(`Erreur Lock: ${e}`);
         }
     } else {
-        console.warn("Wake Lock n'est pas supporté.");
+        console.warn("Wake Lock n'est pas supportE.");
     }
 }
 
@@ -526,7 +525,7 @@ function handleLayerState(checkboxId, layerGroup, fetchFunction) {
 ////////////////////////////////////////////
 
 
-// === 1) AVIONS -> PositionsDesAvions ===
+// === 1/ AVIONS -> PositionsDesAvions ===
 async function fetchDonneeAvions() {
     // --- SI ON N'A PAS LA GEOLOC DE USER ALORS ON NE FAIT AUCUNE REQUETE --- 
     
@@ -557,7 +556,7 @@ async function fetchDonneeAvions() {
     }
 }
 
-// === 2) BUS -> PositionsDesBus / InfosSuppBus ===
+// === 2/ BUS -> PositionsDesBus / InfosSuppBus ===
 async function fetchDonneeBus() {
 
     // --- SI ON N'A PAS LA GEOLOC ALORS ON NE FAIT RIEN ---
@@ -596,14 +595,14 @@ async function fetchDonneeBus() {
         if (isValidAndInRadius(lat, lon)) {
             
             popupFn = async function() {
-                openSidebar("Chargement des données...");
+                openSidebar("Chargement des donnEes...");
                 try {
                     details_url = `https://bus-tracker.fr/api/vehicle-journeys/${encodeURIComponent(item.id)}`;
                     // --- 30s DE VALIDITE POUR LES DETAILS ---
                     details = await fetchLocal("InfosSuppBus_" + item.id, details_url, 30000);
                     return buildBusPopup(details);
                 } catch (e) { 
-                    return "Erreur lors du chargement des données"; 
+                    return "Erreur lors du chargement des donnEes"; 
                 }
             };
             addMarkerToLayer(lat, lon, ICON_BUS, LAYERS.buses, item.position.bearing, popupFn);
@@ -611,7 +610,7 @@ async function fetchDonneeBus() {
     }
 }
 
-// === 3) TRAINS -> PositionsDesTrains / InfosSuppTrains ===
+// === 3/ TRAINS -> PositionsDesTrains / InfosSuppTrains ===
 async function fetchTrains() {
     // --- SI ON N'A PAS LA GEOLOC DE USER ALORS ON NE FAIT AUCUNE REQUETE ---
     if (!userLat || !userLon) {
@@ -652,7 +651,7 @@ async function fetchTrains() {
     }
 }
 
-// === 4) TRAJET TRAIN -> Utilise InfosSuppTrains ===
+// === 4/ TRAJET TRAIN -> Utilise InfosSuppTrains ===
 async function fetchTrajetTrain(trainNumero) {
 
     // --- SI LE TRAIN N'A PAS DE NUMERO ON NE CONTINUE PAS CAR IL EST OBLIGATOIRE POUR L'URL SUIVANT ---
@@ -729,7 +728,7 @@ async function fetchTrajetTrain(trainNumero) {
 }
 
 
-// === 5) GARES -> PositionsDesGares ===
+// === 5/ GARES -> PositionsDesGares ===
 async function fetchGares() {
     const CHECKBOX = document.getElementById("filter_train_stations");
 
@@ -755,7 +754,7 @@ async function fetchGares() {
     }
 }
 
-// === 6) AEROPORTS -> PositionsDesAeroports ===
+// === 6/ AEROPORTS -> PositionsDesAeroports ===
 async function fetchAeroports() {
     const CHECKBOX = document.getElementById("filter_airports");
     if (!CHECKBOX || !CHECKBOX.checked) {
@@ -794,7 +793,7 @@ function buildPlanePopup(callsign, vel, alt, country, vert, ground, icao) {
 }
 
 function buildBusPopup(data) {
-    if (!data) return '<div class="notification is-danger">Données indisponibles</div>';
+    if (!data) return '<div class="notification is-danger">DonnEes indisponibles</div>';
     let callsHtml = "";
     if (data.calls?.length) {
         callsHtml = `<p class="menu-label mt-4">Prochains arrêts</p><ul class="menu-list mb-4">`;
@@ -809,12 +808,12 @@ function buildBusPopup(data) {
 }
 
 function buildTrainPopup(props) {
-    return `<div class="message is-success mb-4"><div class="message-header"><p>Train ${props.numero || ""}</p></div><div class="message-body"><p>Destination: <strong>${props.fin || "?"}</strong></p><p>Ligne: ${props.ligne || "?"}</p><p class="is-size-7 has-text-grey mt-2">Trajet affiché sur la carte</p></div></div>`;
+    return `<div class="message is-success mb-4"><div class="message-header"><p>Train ${props.numero || ""}</p></div><div class="message-body"><p>Destination: <strong>${props.fin || "?"}</strong></p><p>Ligne: ${props.ligne || "?"}</p><p class="is-size-7 has-text-grey mt-2">Trajet affichE sur la carte</p></div></div>`;
 }
 
 function buildStationPopup(nom, lat, lon) {
     let dist = userLat ? distanceKm(userLat, userLon, lat, lon).toFixed(1) : "?";
-    return `<div class="box is-shadowless"><h3 class="title is-4">${nom}</h3><p>Distance: ${dist} km</p><button class="button is-small is-fullwidth mt-2" onclick="window.open('http://maps.google.com/?q=${lat},${lon}')">Itinéraire</button></div>`;
+    return `<div class="box is-shadowless"><h3 class="title is-4">${nom}</h3><p>Distance: ${dist} km</p><button class="button is-small is-fullwidth mt-2" onclick="window.open('http://maps.google.com/?q=${lat},${lon}')">ItinEraire</button></div>`;
 }
 
 function buildAirportPopup(ap, lat, lon) {
